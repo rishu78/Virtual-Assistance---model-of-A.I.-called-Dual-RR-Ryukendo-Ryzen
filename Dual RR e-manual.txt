@@ -1,0 +1,93 @@
+-> Task that our programme perform :-
+# General Question :-
+1. what is your name ?
+2. would you like to talk to me ?
+# Opening System Apps :-
+3. open notepad
+4. open open office
+5. open ms access
+6. open ms excel
+7. open ms notepad
+8. open ms outlook
+9. open ms powerpoint
+10. open ms publisher
+11. open control panel
+12. open task manager
+13. open ms word
+14. open antivirus
+15. open graphic card
+16. open character map
+17. open mi panel
+18. open paint
+19. open wordpad
+20. open service
+21. open system information
+22. open task scheduler
+23. open teamviewer
+24. open vs code
+25. open python terminal
+26. open chrome browser
+27. open cmd
+28. open camera
+29. play music
+# Closing System Apps :-
+30. close notepad
+31. close wordpad
+32. close ms outlook
+33. close ms word
+34. closed system information
+35. close ms excel
+36. close ms powerpoint
+37. close teamviewer
+38. close ms access
+39. close vs code
+40. close character map
+41. close ms publisher
+42. close browser
+43. close mi panel
+44. close ms notepad
+45. close paint
+# Based on Internet and open in browser :-
+46. ip address
+47. wikipedia
+48. open youtube
+49. open whatsapp
+50. open facebook
+51. open instagram
+52. open linkedin
+53. open twitter
+54. open college fee
+55. open flipkart
+56. open amazon
+57. open google
+58. open stack overflow
+59. tweet on twitter
+60. play runaway
+61. play tu aake dekh le
+62. send email
+63. messenger to whatsapp
+# System specific tasks :-
+64. current time
+65. sleep the system
+66. shutdown the system
+67. restart the system
+68. set alarm
+69. entertain me
+70. switch the window
+71. where i am  OR  where we are
+72. instagram profile  OR  profile on instagram
+73. take screenshot  OR  take a screenshot
+74. hide all files  OR  hide this folder
+75. visible all files  OR  visible this folder
+76. do some calculation  OR  can you calculate
+77. news  OR  tell me news
+78. read pdf
+79. temperature  OR  today's temperature
+80. activate how to do mode
+81. how much power left  OR  how much power we have  OR  battery
+82. internet speed
+83. volume up
+84. volume down
+85. volume mute
+86. open mobile camera
+87. sleep now  OR  you can sleep

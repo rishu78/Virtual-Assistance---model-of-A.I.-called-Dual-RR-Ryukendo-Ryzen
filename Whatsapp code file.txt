@@ -1,0 +1,18 @@
+import webbrowser as web
+import time
+import keyboard
+
+def whatsapp(number,message):
+    numb = '+91'+ number
+    open_chat = "https://web.whatsapp.com/send?photo=" + numb + "&text=" + message
+    web.open(open_chat)
+    time.sleep(25)
+    keyboard.press("enter")
+
+def whatsapp_grp(grp_id,msg):
+    open_chat = "https://web.whatsapp.com/accept?code=" + grp_id
+    web.open(open_chat)
+    time.sleep(25)
+    keyboard.write(msg)
+    time.sleep(10)
+    keyboard.press("enter")

@@ -1,0 +1,866 @@
+import pyttsx3
+import speech_recognition as sr 
+import datetime
+import os
+import cv2
+import random
+from requests import get
+import wikipedia
+import webbrowser
+import pywhatkit as kit
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+import sys
+import whatsapp
+import keyboard
+import pyjokes
+import pyautogui 
+import time 
+import requests
+import instaloader
+import PyPDF2
+from bs4 import BeautifulSoup
+from pywikihow import search_wikihow
+import psutil
+import speedtest
+
+engine = pyttsx3.init('sapi5')
+voices = engine.getProperty('voices')
+#print(voices)
+engine.setProperty('voice', voices[0].id)
+#to fast or slow voice speed
+#engine.setProperty('rate', 180)
+
+# text to speak
+def speak(audio):
+    engine.say(audio)
+    print(audio)
+    engine.runAndWait()
+
+#for start fn
+def takecmd():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening...")
+        r.pause_threshold = 1
+        audio = r.listen(source,timeout=1,phrase_time_limit=7)
+
+    try:
+        print("Recognizing...")
+        query = r.recognize_google(audio, language='en-in')
+        print(f"user said: {query}")
+
+    except Exception as e:
+        speak(".....")
+        return "None"
+    query = query.lower()
+    return query
+
+# To convert voices into text 
+def takecommand():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening...")
+        r.pause_threshold = 1
+        audio = r.listen(source,timeout=1,phrase_time_limit=7)
+
+    try:
+        print("Recognizing...")
+        query = r.recognize_google(audio, language='en-in')
+        print(f"user said: {query}")
+
+    except Exception as e:
+        speak("Say that again please...")
+        return "None"
+    query = query.lower()
+    return query
+
+# to wish 
+def wish():
+    hour = int(datetime.datetime.now().hour)
+    tt = datetime.datetime.now().strftime("%I:%M %p")
+
+    if hour>=0 and hour<=12:
+        speak(f"Good morning, Its {tt}")
+    elif hour>12 and hour<16:
+        speak(f"Good afternoon, Its {tt}")
+    elif hour>16 and hour<19:
+        speak(f"Good evening, Its {tt}")
+    else:
+        speak(f"Good Night, Its {tt}")
+    speak("i am Ryukendo sir. How are you sir ?") 
+
+#to play music
+def playmusic():
+    music_dir1 = "C:\\Users\\Rishabh Rathore\\OneDrive\\Desktop\\Ryukendo music"
+    songs1 = os.listdir(music_dir1)
+    for song1 in songs1:
+        if song1.endswith('.mp3'):
+            os.startfile(os.path.join(music_dir1, song1))
+
+#to send email
+def sendEmail(to,content):
+    if "send a file" in content:
+        email = 'rishu782818@gmail.com'
+        password = 'Rishabh@&#78'
+        send_to_email = to
+        speak("Okay Sir ! What is the Subject for this email ?")
+        query = takecommand().lower()
+        subject = query
+        speak("and sir, What is the message for this email ?")
+        query2 = takecommand().lower()
+        message = query2
+        speak("Please, Enter the name of the file with extention ")
+        file_location = input("Please, Enter the name of the file with extention : ")
+
+        speak("Please wait ! I am sending email now")
+
+        msg = MIMEMultipart()
+        msg['from : '] = email
+        msg['to : '] = send_to_email
+        msg['Subject : '] = subject
+
+        msg.attach(MIMEText(message,'plain'))
+
+        #setup the attachment 
+        #filename = os.path.basename(file_location)
+        attachment = open(file_location, "rb")
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(attachment.read())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition',"attachment; filename= %s" % file_location)
+
+        #Attach the attachment to the MIMEMultipart object
+        msg.attach(part)
+
+        server = smtplib.SMTP("smtp.gmail.com",587)
+        server.starttls()
+        server.login(email, password)
+        text = msg.as_string()
+        server.sendmail(email, send_to_email, text)
+        server.quit()
+    else:        
+        server = smtplib.SMTP("smtp.gmail.com",587)
+        server.ehlo()
+        server.starttls()
+        server.login('rishu782818@gmail.com','Rishabh@&#78')
+        server.sendmail('rishu782818@gmail.com', to, content)
+        server.close()
+
+#to send whatsapp msg
+def Task_Gui():
+    while True:
+        query = takecommand().lower() 
+        if "hello" in query:
+            speak("hello sir, how are you ?")
+
+        elif "whatsapp message" in query:
+            speak("to whom?")
+            cm = takecommand().lower()
+
+            if "personal" in cm:
+                numb = "9424091482"
+                speak(f"what's the message for {cm}")
+                mess = takecommand().lower()
+                whatsapp.whatsapp(numb, mess) 
+
+            elif "rathore" in cm:
+                grp = "D6400vHKz5d2HAzYc9pHDx"
+                speak(f"what's the message for {cm}")
+                mess = takecommand().lower()
+                whatsapp.whatsapp_grp(grp, mess) 
+
+        elif "no thanks" in query:
+            speak("closing whatsapp! Thankyou ")
+            break;
+
+#for news updates
+def news():
+    main_url = "https://newsapi.org/v2/top-headlines?sources=techcrunch&apiKey=6590e43d9a464e8180eeafa7c0fca90d"
+
+    main_page = requests.get(main_url).json()
+    #print(main_page)
+    articles = main_page["articles"]
+    #print(articles)
+    head = []
+    day = ["first","second","third","fourth","fifth"]
+    for ar in articles:
+        head.append(ar["title"])
+    for i in range (len(day)):
+        #print(f"today's {day[1]} news is: ",head[1])
+        speak(f"today's {day[i]} news is: {head[i]}")
+
+#for pdf reader
+def pdf_reader():
+    speak("Enter the name of PDF File ")
+    book_name = input("PDF Name : ")
+    book = open(book_name,'rb')
+    pdfReader = PyPDF2.PdfFileReader(book)
+    pages = pdfReader.numPages
+    speak(f"Total numbers of pages in this book {pages} .")
+    speak("Sir, please enter the pages number i have to read.")
+    pg = int(input("Please enter the page number : "))
+    page = pdfReader.getPage(pg)
+    text = page.extractText()
+    speak(text) 
+
+#calculation defination
+def add(a, b):
+    "Same as a + b."
+    return a + b 
+def sub(a, b):
+    "Same as a - b."
+    return a - b 
+def mul(a, b):
+    "Same as a * b."
+    return a * b 
+def div(a, b):
+    "Same as a / b."
+    return a / b 
+
+#to control main function
+def start():
+    keyboard.press('esc')
+    speak("verification successful")
+    speak("welcome back Rishabh sir")
+    if 1:
+        query = takecommand().lower()
+        
+        if "activated" in query:
+            speak("Dual RR Ryzen mode Avtivated ! Hello Rishabh Sir.")
+            playmusic()
+            wish()
+            if 1:
+                query = takecommand().lower()
+                if "how are you" in query:
+                    speak("I am also fine Sir! Please tell me how can i help you")
+            #if 1:
+            while True:
+                query = takecommand().lower() 
+        
+        # logic building for tasks 
+                if "open notepad" in query:
+                    npath = "C:\\WINDOWS\\system32\\notepad.exe"
+                    speak("Please wait! NOtepad is opening soon...")
+                    os.startfile(npath)
+
+                elif "close notepad" in query:
+                    speak("Ok sir, Please wait! Notepad is Closing soon... ")
+                    os.system("taskkill /f /im notepad.exe")
+
+                elif "what is your name ?" in query:
+                    speak("My name is Ryukendo")
+
+                elif "would you like to talk to me ?" in query:
+                    speak("yes! why not") 
+
+                elif "open open office" in query:
+                    apath = "C:\\Program Files (x86)\\OpenOffice 4\\program\\soffice.exe"
+                    speak("Please wait! Open office 4.1.9 is opening soon...")
+                    os.startfile(apath)
+
+                elif "open ms access" in query:
+                    bpath = "C:\\Program Files\\Microsoft Office\\root\\Office16\\MSACCESS.EXE"
+                    speak("Please wait! MS Access is opening soon...")
+                    os.startfile(bpath)
+
+                elif "close ms access" in query:
+                    speak("Ok sir, Please wait! MS Access is Closing soon... ")
+                    os.system("taskkill /f /im MSACCESS.EXE")
+
+                elif "open ms excel" in query:
+                    cpath = "C:\\Program Files\\Microsoft Office\\root\\Office16\\EXCEL.EXE"
+                    speak("Please wait! MS Excel is opening soon...")
+                    os.startfile(cpath)
+
+                elif "close ms excel" in query:
+                    speak("Ok sir, Please wait! MS Excel is Closing soon... ")
+                    os.system("taskkill /f /im EXCEL.EXE")
+
+                elif "open ms notepad" in query:
+                    epath = "C:\\Program Files\\Microsoft Office\\root\\Office16\\ONENOTE.EXE"
+                    speak("Please wait! MS Onenote  is opening soon...")
+                    os.startfile(epath)
+
+                elif "close ms notepad" in query:
+                    speak("Ok sir, Please wait! MS Onenote is Closing soon... ")
+                    os.system("taskkill /f /im ONENOTE.EXE")
+
+                elif "open ms outlook" in query:
+                    fpath = "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE"
+                    speak("Please wait! MS Outlook is opening soon...")
+                    os.startfile(fpath)
+
+                elif "close ms outlook" in query:
+                    speak("Ok sir, Please wait! MS Outlook is Closing soon... ")
+                    os.system("taskkill /f /im OUTLOOK.EXE")
+
+                elif "open ms powerpoint" in query:
+                    gpath = "C:\\Program Files\\Microsoft Office\\root\\Office16\\POWERPNT.EXE"
+                    speak("Please wait! MS Powerpoint is opening soon...")
+                    os.startfile(gpath)
+
+                elif "close ms powerpoint" in query:
+                    speak("Ok sir, Please wait! MS Powerpoint is Closing soon... ")
+                    os.system("taskkill /f /im POWERPNT.EXE")
+
+                elif "open ms publisher" in query:
+                    hpath = "C:\\Program Files\\Microsoft Office\\root\\Office16\MSPUB.EXE"
+                    speak("Please wait! MS Publisher is opening soon...")
+                    os.startfile(hpath) 
+
+                elif "close ms publisher" in query:
+                    speak("Ok sir, Please wait! MS Publisher is Closing soon... ")
+                    os.system("taskkill /f /im MSPUB.EXE")
+
+                elif "open control panel" in query:
+                    ipath = "C:\\WINDOWS\\System32\\control.exe"
+                    speak("Please wait! Control Panel is opening soon...")
+                    os.startfile(ipath)
+
+                elif "open task manager" in query:
+                    jpath = "C:\\WINDOWS\\system32\\Taskmgr.exe"
+                    speak("Please wait! Task manager is opening soon...")
+                    os.startfile(jpath)
+
+                elif "open ms word" in query:
+                    kpath = "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE"
+                    speak("Please wait! MS word is opening soon...")
+                    os.startfile(kpath)
+
+                elif "close ms word" in query:
+                    speak("Ok sir, Please wait! MS word is Closing soon... ")
+                    os.system("taskkill /f /im WINWORD.EXE")
+
+                elif "open antivirus" in query:
+                    lpath = "C:\\Program Files\\Common Files\\mcafee\\platform\\McUICnt.exe"
+                    speak("Please wait! MaCfee Security is opening soon...")
+                    os.startfile(lpath)
+            
+                elif "open graphic card" in query:
+                    opath = "C:\\Program Files (x86)\\NVIDIA Corporation\\NVIDIA GeForce Experience\\NVIDIA GeForce Experience.exe"
+                    speak("Please wait! NVIDIA Geforce Graphic processor is opening soon...")
+                    os.startfile(opath)
+            
+                elif "open character map" in query:
+                    ppath = "C:\\WINDOWS\\system32\\charmap.exe"
+                    speak("Please wait! Character Map is opening soon...")
+                    os.startfile(ppath)
+
+                elif "close character map" in query:
+                    speak("Ok sir, Please wait! Character Map is Closing soon... ")
+                    os.system("taskkill /f /im charmap.exe")
+
+                elif "open mi panel" in query:
+                    mpath = "C:\\Program Files\\Common Files\\Microsoft Shared\\Ink\\mip.exe"
+                    speak("Please wait! Math input panel is opening soon...")
+                    os.startfile(mpath)
+
+                elif "close mi panel" in query:
+                    speak("Ok sir, Please wait! Math input panel is Closing soon... ")
+                    os.system("taskkill /f /im mip.exe")
+
+                elif "open paint" in query:
+                    abpath = "C:\\WINDOWS\\system32\\mspaint.exe"
+                    speak("Please wait! Paint is opening soon...")
+                    os.startfile(abpath)
+
+                elif "close paint" in query:
+                    speak(f"Ok sir, Please wait! Paint is Closing soon... ")
+                    os.system("taskkill /f /im mspaint.exe")
+
+                elif "open wordpad" in query:
+                    rpath = "C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe"
+                    speak("Please wait! Wordpad is opening soon...")
+                    os.startfile(rpath)
+
+                elif "close wordpad" in query:
+                    speak(f"Ok sir, Please wait! Wordpad is Closing soon... ")
+                    os.system("taskkill /f /im wordpad.exe")
+
+                elif "open service" in query:
+                    spath = "C:\\WINDOWS\\system32\\services.msc"
+                    speak("Please wait! Service is opening soon...")
+                    os.startfile(spath)
+
+                elif "open system information" in query:
+                    tpath = "C:\\WINDOWS\\system32\\msinfo32.exe"
+                    speak("Please wait! System Information is opening soon...")
+                    os.startfile(tpath)
+
+                elif "closed system information" in query:
+                    speak(f"Ok sir, Please wait! System Information is Closing soon... ")
+                    os.system("taskkill /f /im msinfo32.exe")
+
+                elif "open task scheduler" in query:
+                    upath = "C:\\WINDOWS\\system32\\taskschd.msc"
+                    speak("Please wait! Task Scheduler is opening soon...")
+                    os.startfile(upath)
+
+                elif "open teamviewer" in query:
+                    vpath = "C:\\Program Files (x86)\\TeamViewer\\TeamViewer.exe"
+                    speak("Please wait! TeamVeiwer is opening soon...")
+                    os.startfile(vpath)
+
+                elif "close teamviewer" in query:
+                    speak(f"Ok sir, Please wait! TeamVeiwer is Closing soon... ")
+                    os.system("taskkill /f /im TeamViewer.exe")
+
+                elif "open vs code" in query:
+                    wpath = "C:\\Users\\Rishabh Rathore\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe"
+                    speak("Please wait! Visual Studio Code is opening soon...")
+                    os.startfile(wpath)
+
+                elif "close vs code" in query:
+                    speak(f"Ok sir, Please wait! Visual Studio Code is Closing soon... ")
+                    os.system("taskkill /f /im Code.exe")
+
+                elif "open python terminal" in query:
+                    xpath = "C:\\Users\\Rishabh Rathore\\AppData\\Local\\Programs\\Python\\Python38-32\\python.exe"
+                    speak("Please wait! Python Terminal is opening soon...")
+                    os.startfile(xpath)
+
+                elif "open chrome browser" in query:
+                    ypath = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
+                    speak("Please wait! Google Chrome is opening soon...")
+                    os.startfile(ypath)
+
+                elif "close browser" in query:
+                    speak("Ok sir, Please wait! browser is Closing soon... ")
+                    os.system("taskkill /f /im chrome.exe")
+
+                elif "open cmd" in query:
+                    speak("Please wait! cmd is opening soon...")
+                    os.system("Start cmd")
+
+                elif "open camera" in query:
+                    speak("Please wait! Camera is opening soon...")
+                 #   face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+                    cap = cv2.VideoCapture(0)
+                    count=0
+                    while True:
+                        ret, img = cap.read()
+                        #gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                        #faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+                        #for (x, y, w, h) in faces:
+                         #   cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
+                        if not ret:
+                            print("Failed to grab Image")
+                            break
+                        cv2.imshow('webcam', img)
+                        k = cv2.waitKey(50) & 0xff
+                        if k==27:
+                            break;
+                        elif k==32:
+                            img_name = "C:/Users/Rishabh Rathore/OneDrive/Desktop/Python Webcam Picture/Python_Webcam_Image.jpg"+" "+str(count)+".jpg"
+                            cv2.imwrite(img_name, img)
+                            speak("Image taken complete")
+                            count+=1
+                    cap.release()
+                    cv2.destroyAllWindows()
+
+                elif "play music" in query:
+                    music_dir = "C:\\Users\\Rishabh Rathore\\OneDrive\\Desktop\\ms list"
+                    songs = os.listdir(music_dir)
+                    # rd = random.choice(songs)
+                    for song in songs:
+                        if song.endswith('.mp3'):
+                            os.startfile(os.path.join(music_dir, song))
+
+                elif "ip address" in query:
+                    ip = get("https://api.ipify.org").text
+                    speak(f"Your IP address is {ip}")
+
+                elif "wikipedia" in query:
+                    speak("Searching wikipedia...")
+                    query = query.replace("wikipedia","")
+                    results = wikipedia.summary(query, sentences=3)
+                    speak("According to wikipedia")
+                    speak(results)
+                    print(results)
+
+                elif "open youtube" in query:
+                    speak("Please wait! Youtube is opening soon...")
+                    webbrowser.open("www.youtube.com")
+
+                elif "open whatsapp" in query:
+                    speak("Please wait! Whatsapp is opening soon...")
+                    webbrowser.open("https://web.whatsapp.com/")
+
+                elif "open facebook" in query:
+                    speak("Please wait! Facebook is opening soon...")
+                    webbrowser.open("www.twitter.com")
+
+                elif "open instagram" in query:
+                    speak("Please wait! Instagram is opening soon...")
+                    webbrowser.open("https://www.instagram.com/")
+
+                elif "open linkedin" in query:
+                    speak("Please wait! Linkedin is opening soon...")
+                    webbrowser.open("https://in.linkedin.com/")
+
+                elif "open twitter" in query:
+                    speak("Please wait! Twitter is opening soon...")
+                    webbrowser.open("https://twitter.com/login")
+
+                elif "open college fee" in query:
+                    speak("Please wait! T I T fees is opening soon...")
+                    webbrowser.open("http://182.76.252.6/onlinefees/LoginStudent.aspx?type=F")
+                
+                elif "open flipkart" in query:
+                    speak("Please wait! Flipkart is opening soon...")
+                    webbrowser.open("https://www.flipkart.com/?ef_id=48b4f01ea21c197fc262909477a6cd72:G:s&s_kwcid=AL!739!10!76347481385536!76347484024120&semcmpid=sem_F1167BY7_Brand_adcenter")
+
+                elif "open amazon" in query:
+                    speak("Please wait! Amazon is opening soon...")
+                    webbrowser.open("https://www.amazon.in/s?k=tender&hvadid=73186347563511&hvbmt=be&hvdev=c&hvqmt=e&tag=msndeskstdin-21&ref=pd_sl_2tgrxefzsi_e")
+
+                elif "open google" in query:
+                    speak("Please wait! Google is opening soon...")
+                    speak("Sir, what should i search on google")
+                    cm = takecommand().lower()
+                    webbrowser.open(f"{cm}")
+                    try:
+                        result = wikipedia.summary(cm, sentences=2)
+                        speak(result)
+                    except Exception as e:
+                        print("No speaking results")
+
+                elif "open stack overflow" in query:
+                    speak("Please wait! Stackoverflow is opening soon...")
+                    webbrowser.open("www.stackoverflow.com")
+
+                elif "tweet on twitter" in query:
+                    speak("Please wait! Twitter is opening soon...")
+                    speak("What you want to tweet ? Please type .....")
+                    import TwitterBot
+
+                elif "play runaway" in query:
+                    kit.playonyt("Runaway")
+
+                elif "play tu aake dekh le" in query:
+                    kit.playonyt("tu aake dekhle")
+
+                elif "send email" in query:
+                    speak("to whom ?")
+                    nm = input()
+                    try:
+                        speak("Sir! what should i send ?")
+                        content = takecommand().lower()
+                        speak("enter email")
+                        to = input()
+                        sendEmail(to,content)
+                        speak(f"Email has been sent to {nm}")
+
+                    except Exception as e:
+                        print(e)
+                        speak("sorry sir! i am not able to sent this email")
+                
+                elif "messenger to whatsapp" in query:
+                    speak("processing.....")
+                    Task_Gui()
+
+                elif "current time" in query:
+                    strTime = datetime.datetime.now().strftime("%H:%M:%S")
+                    speak(f"Sir, currently! The time is {strTime}")
+
+                elif "sleep the system" in query:
+                    speak("Please wait! System is sleeping soon...")
+                    #os.system("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
+
+                elif "shutdown the system" in query:
+                    speak("Please wait! System is Shuting down soon...")
+                    #os.system("shutdown /s /t 5")
+
+                elif "restart the system" in query:
+                    speak("Please wait!System is restart soon...")
+                    #os.system("shutdown /r /t 5")
+
+                #elif "set alarm" in query:
+                 #   speak("Enter the time")
+                  #  n = input()
+                   # speak("Alarm is set!")
+                    #nn = int(datetime.datetime.now().hour)
+                    #if nn==n:
+                     #   music_dir = "C:\\Users\\Rishabh Rathore\\OneDrive\\Desktop\\ms list"
+                      #  songs = os.listdir(music_dir)
+                       # os.startfile(os.path.join(music_dir, songs[0]))
+
+                elif "alarm" in query:
+                    try:
+                        speak("Sir, Please tell me the time to set alarm, for example, Set alarm to 5:30 A.M.")
+                        tt = takecommand()
+                        tt = tt.replace("set alarm to ", "")
+                        tt = tt.replace(".","")
+                        tt = tt.upper()
+                        import MyAlarm
+                        MyAlarm.alarm(tt)
+                    except Exception as e:
+                        speak("Sorry! This is invalid input.")
+
+                elif "entertain me" in query:
+                    joke = pyjokes.get_jokes()
+                    speak(joke)
+
+                elif "switch the window" in query:
+                    speak("Ready sir! Window is switching now...")
+                    pyautogui.keyDown("alt")
+                    pyautogui.press("tab")
+                    time.sleep(1)
+                    pyautogui.keyUp("alt")
+
+                elif "where i am" in query or "where we are" in query:
+                    speak("Wait sir, Let me check.")
+                    try:
+                        ipAdd = requests.get('https://api.ipify.org').text
+                        #print(ipAdd)
+                        url = 'https://get.geojs.io/v1/ip/geo/'+ipAdd+'.json'
+                        #print(url)
+                        geo_requests = requests.get(url)
+                        #print(geo_requests)
+                        geo_data = geo_requests.json()
+                        #print(geo_data)
+                        city = geo_data['city']
+                        state = geo_data['region']
+                        country = geo_data['country']
+                        speak(f"Sir, i am not sure ! but i think , we are in {city} city of {state} state of {country} country.")
+                    except Exception as e:
+                        speak("Sorry Sir, Due to network issue, i am not able to find where we are.")
+                        pass
+
+                elif "instagram profile" in query or "profile on instagram" in query:
+                    speak("Sir please enter the user name correctly.")
+                    name = input("Enter username here : ")
+                    webbrowser.open(f"www.instagram.com/{name}")
+                    speak(f"Sir here is the profile of the user {name}")
+                    time.sleep(5)
+                    speak(f"Sir would you like to download profile picture of {name}")
+                    condition = takecommand().lower()
+                    if "yes" in condition:
+                        mod = instaloader.Instaloader()
+                        mod.download_profile(name, profile_pic_only=True)
+                        speak("I am done sir, profile picture is saved in our folder.")
+                    else:
+                        pass
+
+                elif "take screenshot" in query or "take a screenshot" in query:
+                    speak("Sir, please tell me the name for this screenshot file.")
+                    name = takecommand().lower()
+                    speak("Please sir, hold the screen for 2 second , I am Taking Screenshot now.")
+                    time.sleep(3)
+                    img = pyautogui.screenshot()
+                    img.save(f"{name}.jpg")
+                    speak("I am done Sir, the screenshot is saved in our main folder.")
+
+                elif "hide all files" in query or "hide this folder" in query:
+                    speak("Sir, please tell me! You want to hide this folder")
+                    condition = takecommand().lower()
+                    if "hide" in query:
+                        os.system("attrib +h /s /d")
+                        speak("Sir, all the files in this folder are now hidden.")
+                    elif "no" in query:
+                        speak("OK Sir !")
+
+                elif "visible all files" in query or "visible this folder" in query:
+                    speak("Sir, please tell me! You want to visible this folder")
+                    condition = takecommand().lower()
+                    if "visible" in query:
+                        os.system("attrib -h /s /d")
+                        speak("Sir, all the files in this folder are now visible.")
+                    elif "no" in query:
+                        speak("OK Sir !")
+
+                elif "do some calculation" in query or "can you calculate" in query:       
+                    try:
+                        r = sr.Recognizer()
+                        with sr.Microphone() as source:
+                            speak("Say what you want to calculate, example : 3 plus 3.")
+                            print("Listening.....")
+                            r.adjust_for_ambient_noise(source)
+                            audio = r.listen(source)
+                        my_string = r.recognize_google(audio)
+                        print(my_string)
+                        def get_operator_fn(op):
+                            return {
+                                '+' : add, # plus
+                                '-' : sub, # minus
+                                'x' : mul, # multipied by
+                                'by' : div, # by
+                            }[op]
+                        def eval_binary_expr(op1, oper, op2):
+                            op1, op2 = int(op1), int(op2)
+                            return get_operator_fn(oper)(op1, op2)
+                        speak("your result is")
+                        speak(eval_binary_expr(*(my_string.split())))
+                    except Exception as e:
+                        speak("Sorry! This is invalid input.")
+
+                elif "news" in query:
+                    speak("Please wait sir ! fetching the Latest news.")
+                    news()
+
+                elif "read pdf" in query:
+                    pdf_reader()
+
+                elif "temperature" in query or "today's temperature" in query:
+                    speak("of which city ?")
+                    city = takecommand()
+                    search = f"temperature in {city}"
+                    url = f"https://www.google.com/search?q={search}"
+                    r = requests.get(url)
+                    data = BeautifulSoup(r.text,"html.parser")
+                    temp = data.find("div",class_="BNeawe").text
+                    speak(f"Current {search} is {temp}.")
+
+                elif "activate how to do mode" in query:
+                    speak("How to do mode is activated")
+                    while True:
+                        speak("Please tell me what you want to know")
+                        how = takecommand()
+                        try:
+                            if "exit" in how or "close" in how:
+                                speak("Okay sir, how to do mode is closed")
+                                break
+                            else:
+                                max_results = 1
+                                how_to = search_wikihow(how, max_results)
+                                assert len(how_to) == 1
+                                how_to[0].print()
+                                speak(how_to[0].summary)
+                        except Exception as e:
+                            speak("Sorry sir, I am not able to find this.")
+
+                elif "how much power left" in query or "how much power we have" in query or "battery" in query:
+                    battery = psutil.sensors_battery()
+                    percentage = battery.percent
+                    speak(f"Sir, Our system have {percentage} percent battery left.")
+                    if percentage >= 75:
+                        speak("We have enough power to continue our work.")
+                    elif percentage >= 40 and percentage < 75:
+                        speak("We should connect our system to charging point to charge our battery")
+                    elif percentage >= 15 and percentage < 45:
+                        speak("We don't have enough power to work, please connect to charging.")
+                    elif percentage <= 15:
+                        speak("We have very low power, please connect to charging the system will shutdown very soon.")
+
+                elif "internet speed" in query:
+                    st = speedtest.Speedtest()
+                    dl = st.download()
+                    up = st.upload()
+                    speak(f"Sir, We have {dl} bit per second downloading speed and {up} bit per second uploading speed.")
+
+                elif "volume up" in query:
+                    pyautogui.press("volumeup")
+
+                elif "volume down" in query:
+                    pyautogui.press("volumedown")
+
+                elif "volume mute" in query or "volume unmute" in query:
+                    pyautogui.press("volumemute")
+
+                elif "open mobile camera" in query:
+                    import urllib.request
+                    import cv2
+                    import numpy as np
+                    import time
+                    URL = "http://192.168.43.1:8080/shot.jpg"
+                    while True:
+                        img_arr = np.array(bytearray(urllib.request.urlopen(URL).read()),dtype=np.uint8)
+                        img = cv2.imdecode(img_arr,-1)
+                        cv2.imshow('IPWebcam',img)
+                        q = cv2.waitKey(1)
+                        if q == ord("q"):
+                            break;
+                    cv2.destroyAllWindows()
+                    
+                elif "sleep now" in query or "you can sleep" in query:
+                    speak("Okay Sir! I am going to sleep, You can call me anytime.")
+                    break
+
+                speak("Sir, Do you have any other work!")
+                
+
+if __name__ == "__main__":
+    while True:
+        permission = takecmd()
+        if "wake up" in permission:
+            speak("Activating...")
+            qq = takecmd()
+            if "yes" in qq:
+                recognizer = cv2.face.LBPHFaceRecognizer_create() # Local Binary Patterns Histograms
+                recognizer.read('trainer/trainer.yml')   #load trained model
+                cascadePath = "haarcascade_frontalface_default.xml"
+                faceCascade = cv2.CascadeClassifier(cascadePath) #initializing haar cascade for object detection approach
+
+                font = cv2.FONT_HERSHEY_SIMPLEX #denotes the font type
+
+
+                id = 2 #number of persons you want to Recognize
+
+
+                names = ['','rishu']  #names, leave first empty bcz counter starts from 0
+
+
+                cam = cv2.VideoCapture(0, cv2.CAP_DSHOW) #cv2.CAP_DSHOW to remove warning
+                cam.set(3, 640) # set video FrameWidht
+                cam.set(4, 480) # set video FrameHeight
+
+                # Define min window size to be recognized as a face
+                minW = 0.1*cam.get(3)
+                minH = 0.1*cam.get(4)
+
+                # flag = True
+
+                while True:
+
+                    ret, img =cam.read() #read the frames using the above created object
+
+                    converted_image = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)  #The function converts an input image from one color space to another
+
+                    faces = faceCascade.detectMultiScale( 
+                        converted_image,
+                        scaleFactor = 1.2,
+                        minNeighbors = 5,
+                        minSize = (int(minW), int(minH)),
+                    )
+
+                    for(x,y,w,h) in faces:
+
+                        cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2) #used to draw a rectangle on any image
+
+                        id, accuracy = recognizer.predict(converted_image[y:y+h,x:x+w]) #to predict on every single image
+
+                        # Check if accuracy is less them 100 ==> "0" is perfect match 
+                        if (accuracy < 100):
+                            id = names[id]
+                            accuracy = "  {0}%".format(round(100 - accuracy))
+                            start()
+
+                        else:
+                            id = "unknown"
+                            accuracy = "  {0}%".format(round(100 - accuracy))
+                            speak("user authentication is failed")
+                            break 
+                        
+                        cv2.putText(img, str(id), (x+5,y-5), font, 1, (255,255,255), 2)
+                        cv2.putText(img, str(accuracy), (x+5,y+h-5), font, 1, (255,255,0), 1)  
+                    
+                    #cv2.imshow('camera',img) 
+
+                    k = cv2.waitKey(10) & 0xff # Press 'ESC' for exiting video
+                    if k == 27:
+                        break
+
+                # Do a bit of cleanup
+                print("Thanks for using this program, have a good day.")
+                cam.release()
+                cv2.destroyAllWindows()
+            else:
+                continue
+
+        elif "goodbye" in permission:
+            speak("Thanks for using me! sir, have a good day .")
+            sys.exit()
